@@ -1,5 +1,4 @@
-use fast_input::{FastInput, Str};
-use std::collections::HashMap;
+use fast_input::FastInput;
 
 fn main() {
     let input = FastInput::new();

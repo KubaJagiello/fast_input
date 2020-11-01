@@ -1,12 +1,12 @@
-
 use std::cell::Cell;
-use std::io::prelude::*;
-use std::str::{from_utf8_unchecked, FromStr};
-use std::ops::Deref;
 use std::fmt::Display;
+use std::io::prelude::*;
 use std::io::stdin;
-use std::iter::Skip;
+use std::ops::Deref;
+use std::str::{from_utf8_unchecked, FromStr};
 
+#[cfg(test)]
+mod tests;
 
 /// Simplifies reading and parsing of known input in a speedy fashion.
 ///
@@ -77,7 +77,7 @@ impl FastInput {
     /// is 8196 bytes.
     pub fn new() -> Self {
         FastInput {
-            data: FastInput::read_to_end(stdin().lock(),BUFFER_SIZE),
+            data: FastInput::read_to_end(stdin().lock(), BUFFER_SIZE),
             pos: Cell::new(0),
         }
     }
@@ -95,6 +95,24 @@ impl FastInput {
     /// Creates a new FastInput with a given input that implements
     /// Read
     ///
+    /// # Examples
+    ///
+    /// Creating a FastInput over a byte slice:
+    /// ```
+    /// use fast_input::FastInput;
+    /// use std::io::Read;
+    ///
+    /// let data = "1 2\n3 4".as_bytes();
+    ///
+    /// let input = FastInput::with_reader(data);
+    ///
+    /// let (one, two) = input.next_tuple::<u32, u32>();
+    /// let (three, four) = input.next_tuple::<u32, u32>();
+    ///
+    /// assert_eq!((1, 2), (one, two));
+    /// assert_eq!((3, 4), (three, four));
+    /// assert_eq!(false, input.has_next_line());
+    /// ```
     /// For more information, see [`new`].
     pub fn with_reader<T: Read>(input: T) -> Self {
         FastInput {
@@ -109,7 +127,7 @@ impl FastInput {
     ///
     /// The function panics if there is no more data in the buffer.
     /// If you are unsure if there is a next line, see [`has_next_line`].
-    pub fn next_line<'a>(&'a self) -> &'a str {
+    pub fn next_line(&self) -> &str {
         if let Some(nline) = self.next_newline() {
             unsafe {
                 let pos = self.pos.get();
@@ -242,7 +260,7 @@ impl FastInput {
     /// ```
     /// # Panics
     /// If there is no more data in the buffer. See [`has_next_line`].
-    pub fn next_as_iter<'a, T: FastParse<'a>>(&'a self) -> impl Iterator<Item = T> + '_ {
+    pub fn next_as_iter<'a, T: FastParse<'a>>(&'a self) -> impl Iterator<Item=T> + '_ {
         self.next_line().trim().split(' ').map(|x| T::fparse(x))
     }
 
@@ -262,7 +280,7 @@ impl FastInput {
     /// ```
     /// # Panics
     /// If there is no more data in the buffer. See [`has_next_line`].
-    pub fn next_split<'a>(&'a self) -> impl Iterator<Item = &'a str> + '_ {
+    pub fn next_split<'a>(&'a self) -> impl Iterator<Item=&'a str> + '_ {
         self.next_line().trim().split(' ')
     }
 
@@ -288,8 +306,8 @@ impl FastInput {
     /// # Panics
     /// If there is no more data in the buffer. See [`has_next_line`].
     #[deprecated(
-        since = "0.1.1",
-        note = "Use `next_tuple` with the `Str` type instead.",
+    since = "0.1.1",
+    note = "Use `next_tuple` with the `Str` type instead."
     )]
     pub fn next_str_tuple(&self) -> (&str, &str) {
         let mut line = self.next_line().trim().split(' ');
@@ -301,8 +319,8 @@ impl FastInput {
     /// # Panics
     /// If there is no more data in the buffer. See [`has_next_line`].
     #[deprecated(
-        since = "0.1.1",
-        note = "Use `next_triple` with the `Str` type instead.",
+    since = "0.1.1",
+    note = "Use `next_triple` with the `Str` type instead."
     )]
     pub fn next_str_triple(&self) -> (&str, &str, &str) {
         let mut line = self.next_line().trim().split(' ');
@@ -312,7 +330,6 @@ impl FastInput {
             line.next().unwrap(),
         )
     }
-
 
     fn read_to_end<T: Read>(mut input: T, buffer_size: usize) -> Vec<u8> {
         let mut data = Vec::with_capacity(buffer_size);
@@ -353,29 +370,29 @@ impl Iterator for LineIter {
             None
         }
     }
+}
 
-    fn skip(self, n: usize) -> Skip<Self> where
-        Self: Sized, {
-        unimplemented!()
+impl Default for FastInput {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
-/// Helper trait for parsing
-/// Only used to avoid repeating type constraints
+/// Helper trait for parsing.
+/// Mainly used to avoid repeating type constraints.
 pub trait FastParse<'a> {
     /// Parses a type from a string slice
     fn fparse(s: &'a str) -> Self;
 }
 
 impl<'a, T: FromStr> FastParse<'a> for T
-where
-    <T as FromStr>::Err: std::fmt::Debug,
+    where
+        <T as FromStr>::Err: std::fmt::Debug,
 {
     fn fparse(s: &'a str) -> Self {
         s.parse().unwrap()
     }
 }
-
 
 /// Allows reading of string slices (`&str`).
 /// The standard library does not provide a `FromStr` implementation
@@ -385,15 +402,14 @@ where
 /// # Examples
 ///
 /// Reading (name, age, city) triples using `Str` and `FastInput`:
-/// ```no_run
+/// ```rust
 /// use fast_input::{FastInput, Str};
-/// // Input:
-/// // Jakub 26 Mora
-/// let input = FastInput::new();
+/// let data = "Jakub 26 Mora".as_bytes();
+/// let input = FastInput::with_reader(data);
 /// let (name, age, city) = input.next_triple::<Str, u8, Str>();
 /// // Str implements Display
 /// println!("The person is called {}, is {} years old and lives in {}", name, age, city);
-/// 
+///
 /// //To use any functions related to `&str`, dereference the `Str` into a `&str`
 /// let name: &str = *name;
 ///
