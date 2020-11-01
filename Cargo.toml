@@ -11,5 +11,8 @@ categories = ["parsing"]
 
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[[bin]]
+name = "iterator"
+path = "examples/iterator_example.rs"
 
 [dependencies]

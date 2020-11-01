@@ -5,6 +5,7 @@ use std::str::{from_utf8_unchecked, FromStr};
 use std::ops::Deref;
 use std::fmt::Display;
 use std::io::stdin;
+use std::iter::Skip;
 
 
 /// Simplifies reading and parsing of known input in a speedy fashion.
@@ -329,6 +330,33 @@ impl FastInput {
         } else {
             None
         }
+    }
+
+    pub fn lines(self) -> LineIter {
+        LineIter {
+            input: self
+        }
+    }
+}
+
+pub struct LineIter {
+    input: FastInput,
+}
+
+impl Iterator for LineIter {
+    type Item = String;
+
+    fn next(&mut self) -> Option<String> {
+        if self.input.has_next_line() {
+            Some(self.input.next_line().trim_end().into())
+        } else {
+            None
+        }
+    }
+
+    fn skip(self, n: usize) -> Skip<Self> where
+        Self: Sized, {
+        unimplemented!()
     }
 }
 
