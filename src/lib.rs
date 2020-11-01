@@ -4,16 +4,10 @@ use std::fmt::Display;
 use std::io::prelude::*;
 use std::io::stdin;
 use std::ops::Deref;
-<<<<<<< HEAD
-use std::fmt::Display;
-use std::io::stdin;
-
-=======
 use std::str::{from_utf8_unchecked, FromStr};
 
 #[cfg(test)]
 mod tests;
->>>>>>> 50c48fd026d5c176877c8cc00220b4ddc911c8c7
 
 /// Simplifies reading and parsing of known input in a speedy fashion.
 ///
@@ -84,11 +78,7 @@ impl FastInput {
     /// is 8196 bytes.
     pub fn new() -> Self {
         FastInput {
-<<<<<<< HEAD
-            data: FastInput::read_to_end(stdin().lock(),BUFFER_SIZE),
-=======
             data: FastInput::read_to_end(stdin().lock(), BUFFER_SIZE),
->>>>>>> 50c48fd026d5c176877c8cc00220b4ddc911c8c7
             pos: Cell::new(0),
         }
     }
@@ -106,8 +96,6 @@ impl FastInput {
     /// Creates a new FastInput with a given input that implements
     /// Read
     ///
-<<<<<<< HEAD
-=======
     /// # Examples
     ///
     /// Creating a FastInput over a byte slice:
@@ -126,7 +114,6 @@ impl FastInput {
     /// assert_eq!((3, 4), (three, four));
     /// assert_eq!(false, input.has_next_line());
     /// ```
->>>>>>> 50c48fd026d5c176877c8cc00220b4ddc911c8c7
     /// For more information, see [`new`].
     pub fn with_reader<T: Read>(input: T) -> Self {
         FastInput {
@@ -345,10 +332,6 @@ impl FastInput {
         )
     }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 50c48fd026d5c176877c8cc00220b4ddc911c8c7
     fn read_to_end<T: Read>(mut input: T, buffer_size: usize) -> Vec<u8> {
         let mut data = Vec::with_capacity(buffer_size);
         input.read_to_end(&mut data).unwrap();
