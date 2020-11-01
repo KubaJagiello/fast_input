@@ -1,11 +1,19 @@
 
 use std::cell::Cell;
+use std::fmt::Display;
 use std::io::prelude::*;
-use std::str::{from_utf8_unchecked, FromStr};
+use std::io::stdin;
 use std::ops::Deref;
+<<<<<<< HEAD
 use std::fmt::Display;
 use std::io::stdin;
 
+=======
+use std::str::{from_utf8_unchecked, FromStr};
+
+#[cfg(test)]
+mod tests;
+>>>>>>> 50c48fd026d5c176877c8cc00220b4ddc911c8c7
 
 /// Simplifies reading and parsing of known input in a speedy fashion.
 ///
@@ -76,7 +84,11 @@ impl FastInput {
     /// is 8196 bytes.
     pub fn new() -> Self {
         FastInput {
+<<<<<<< HEAD
             data: FastInput::read_to_end(stdin().lock(),BUFFER_SIZE),
+=======
+            data: FastInput::read_to_end(stdin().lock(), BUFFER_SIZE),
+>>>>>>> 50c48fd026d5c176877c8cc00220b4ddc911c8c7
             pos: Cell::new(0),
         }
     }
@@ -94,6 +106,27 @@ impl FastInput {
     /// Creates a new FastInput with a given input that implements
     /// Read
     ///
+<<<<<<< HEAD
+=======
+    /// # Examples
+    ///
+    /// Creating a FastInput over a byte slice:
+    /// ```
+    /// use fast_input::FastInput;
+    /// use std::io::Read;
+    ///
+    /// let data = "1 2\n3 4".as_bytes();
+    ///
+    /// let input = FastInput::with_reader(data);
+    ///
+    /// let (one, two) = input.next_tuple::<u32, u32>();
+    /// let (three, four) = input.next_tuple::<u32, u32>();
+    ///
+    /// assert_eq!((1, 2), (one, two));
+    /// assert_eq!((3, 4), (three, four));
+    /// assert_eq!(false, input.has_next_line());
+    /// ```
+>>>>>>> 50c48fd026d5c176877c8cc00220b4ddc911c8c7
     /// For more information, see [`new`].
     pub fn with_reader<T: Read>(input: T) -> Self {
         FastInput {
@@ -108,7 +141,7 @@ impl FastInput {
     ///
     /// The function panics if there is no more data in the buffer.
     /// If you are unsure if there is a next line, see [`has_next_line`].
-    pub fn next_line<'a>(&'a self) -> &'a str {
+    pub fn next_line(&self) -> &str {
         if let Some(nline) = self.next_newline() {
             unsafe {
                 let pos = self.pos.get();
@@ -288,7 +321,7 @@ impl FastInput {
     /// If there is no more data in the buffer. See [`has_next_line`].
     #[deprecated(
         since = "0.1.1",
-        note = "Use `next_tuple` with the `Str` type instead.",
+        note = "Use `next_tuple` with the `Str` type instead."
     )]
     pub fn next_str_tuple(&self) -> (&str, &str) {
         let mut line = self.next_line().trim().split(' ');
@@ -301,7 +334,7 @@ impl FastInput {
     /// If there is no more data in the buffer. See [`has_next_line`].
     #[deprecated(
         since = "0.1.1",
-        note = "Use `next_triple` with the `Str` type instead.",
+        note = "Use `next_triple` with the `Str` type instead."
     )]
     pub fn next_str_triple(&self) -> (&str, &str, &str) {
         let mut line = self.next_line().trim().split(' ');
@@ -312,7 +345,10 @@ impl FastInput {
         )
     }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 50c48fd026d5c176877c8cc00220b4ddc911c8c7
     fn read_to_end<T: Read>(mut input: T, buffer_size: usize) -> Vec<u8> {
         let mut data = Vec::with_capacity(buffer_size);
         input.read_to_end(&mut data).unwrap();
@@ -332,8 +368,14 @@ impl FastInput {
     }
 }
 
-/// Helper trait for parsing
-/// Only used to avoid repeating type constraints
+impl Default for FastInput {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+/// Helper trait for parsing.
+/// Mainly used to avoid repeating type constraints.
 pub trait FastParse<'a> {
     /// Parses a type from a string slice
     fn fparse(s: &'a str) -> Self;
@@ -348,7 +390,6 @@ where
     }
 }
 
-
 /// Allows reading of string slices (`&str`).
 /// The standard library does not provide a `FromStr` implementation
 /// for `&str`. The `Str` type newtypes `&str` and implements `FastParse`
@@ -357,15 +398,14 @@ where
 /// # Examples
 ///
 /// Reading (name, age, city) triples using `Str` and `FastInput`:
-/// ```no_run
+/// ```rust
 /// use fast_input::{FastInput, Str};
-/// // Input:
-/// // Jakub 26 Mora
-/// let input = FastInput::new();
+/// let data = "Jakub 26 Mora".as_bytes();
+/// let input = FastInput::with_reader(data);
 /// let (name, age, city) = input.next_triple::<Str, u8, Str>();
 /// // Str implements Display
 /// println!("The person is called {}, is {} years old and lives in {}", name, age, city);
-/// 
+///
 /// //To use any functions related to `&str`, dereference the `Str` into a `&str`
 /// let name: &str = *name;
 ///
